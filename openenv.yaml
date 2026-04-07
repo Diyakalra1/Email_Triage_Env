@@ -1,0 +1,14 @@
+spec_version: 1
+name: inbox_env
+version: 0.1.0
+description: Deterministic inbox triage benchmark environment with seeded episodes.
+type: space
+runtime: fastapi
+app: server.app:app
+port: 8000
+tags:
+  - openenv
+env:
+  API_BASE_URL: "https://router.huggingface.co/v1"
+  MODEL_NAME: "meta-llama/Llama-3.1-8B-Instruct"
+  HF_TOKEN: ""
