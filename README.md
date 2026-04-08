@@ -128,7 +128,8 @@ After deploy:
 Run context:
 - Space URL: `https://jeeya-ahuja05-inbox-env.hf.space`
 - LLM endpoint: `https://router.huggingface.co/v1`
-- Model: `meta-llama/Llama-3.1-8B-Instruct` and `Qwen/Qwen2.5-7B-Instruct`
+- Model: `Qwen/Qwen2.5-7B-Instruct`
+
 
 ## Notes and Limitations
 
