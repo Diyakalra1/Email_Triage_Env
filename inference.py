@@ -77,7 +77,7 @@ def _log_start(task: str, model_name: str) -> None:
 def _log_step(step: int, action_str: str, reward: float, done: bool, error: Optional[str]) -> None:
     err = error if error else "null"
     print(
-        f"[STEP] step={step} action={action_str} reward={reward:.2f} done={_to_bool_str(done)} error={err}",
+        f"[STEP]  step={step} action={action_str} reward={reward:.2f} done={_to_bool_str(done)} error={err}",
         flush=True,
     )
 
@@ -96,9 +96,8 @@ def _run_task(env_base_url: str, client: OpenAI, model_name: str, task_id: str, 
     steps = 0
     score = 0.0
     success = False
-
-    with InboxEnv(base_url=env_base_url).sync() as env:
-        try:
+    try:
+        with InboxEnv(base_url=env_base_url).sync() as env:
             result = env.reset(seed=seed, task_id=task_id, episode_id=f"task{task_id}-seed{seed}")
             done = bool(result.done)
             seen_reads: set[str] = set()
@@ -172,8 +171,11 @@ def _run_task(env_base_url: str, client: OpenAI, model_name: str, task_id: str, 
             score = float(result.reward or 0.0)
             score = max(0.0, min(1.0, score))
             success = score >= 0.7
-        finally:
-            _log_end(success, steps, score, rewards)
+    except Exception:
+        # Episode failed (e.g. env unreachable); [END] still emitted in finally.
+        pass
+    finally:
+        _log_end(success, steps, score, rewards)
 
 
 def main() -> None:
@@ -182,6 +184,7 @@ def main() -> None:
     model_name = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
     hf_token = os.environ["HF_TOKEN"]
     LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
+    _ = LOCAL_IMAGE_NAME
     llm = OpenAI(base_url=api_base_url, api_key=hf_token)
 
     _run_task(env_base_url, llm, model_name, task_id="1", seed=11)

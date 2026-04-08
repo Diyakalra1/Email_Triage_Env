@@ -63,9 +63,21 @@ Real operations teams triage noisy inboxes under time limits. This environment p
 # Validate structure/spec
 openenv validate
 
+# Docker image (required by course pre-submission script; run where Docker is installed)
+docker build -f server/Dockerfile .
+
 # Run local server
 python -m uvicorn server.app:app --host 0.0.0.0 --port 8000
 ```
+
+## Pre-submission checklist
+
+1. `openenv validate` passes.
+2. `docker build -f server/Dockerfile .` succeeds (2 vCPU / 8 GB builder or CI).
+3. HF Space `/health` returns 200; `/reset` works as documented.
+4. Set Space/repository secrets: `API_BASE_URL`, `MODEL_NAME`, `HF_TOKEN` (and `ENV_BASE_URL` for local inference against the Space).
+5. Run `python inference.py` with a working LLM and live `ENV_BASE_URL`; exit code 0; update the baseline table below with captured scores.
+6. Push to GitHub and resubmit through the course flow.
 
 ## Inference
 
@@ -73,21 +85,26 @@ python -m uvicorn server.app:app --host 0.0.0.0 --port 8000
 
 Environment variables:
 
-- `API_BASE_URL` (LLM endpoint, default `https://router.huggingface.co/v1`)
-- `ENV_BASE_URL` (environment endpoint, e.g. your HF Space URL)
-- `MODEL_NAME` (model id)
-- `HF_TOKEN` (API token)
+- `API_BASE_URL` — OpenAI-compatible **LLM** endpoint (default `https://router.huggingface.co/v1`)
+- `MODEL_NAME` — chat model id (default `Qwen/Qwen2.5-72B-Instruct`)
+- `HF_TOKEN` — **required** API key (no default)
+- `ENV_BASE_URL` — OpenEnv **server** base URL for `InboxEnv` (WebSocket + HTTP). For a Hugging Face Space named `inbox-env` under user `myuser`, use `https://myuser-inbox-env.hf.space` (HTTPS scheme, no trailing slash). Graders typically set this to your deployed Space URL. Local default is `http://localhost:8000` if unset.
+- `LOCAL_IMAGE_NAME` — optional; only if you use `from_docker_image()` (not used by this script’s default path)
 
-Run:
+Run (example with live Space):
 
 ```bash
+export ENV_BASE_URL="https://<owner>-<space>.hf.space"
+export API_BASE_URL="https://router.huggingface.co/v1"
+export MODEL_NAME="meta-llama/Llama-3.1-8B-Instruct"
+export HF_TOKEN="hf_..."
 python inference.py
 ```
 
-The script emits required stdout records:
+The script emits required stdout records (see course sample for strict field order). Each episode prints `[END]` even if the environment client fails to connect (e.g. wrong `ENV_BASE_URL`).
 
-- `[START] task=... env=... model=...`
-- `[STEP] step=... action=... reward=... done=... error=...`
+- `[START] task=... env=inbox_env model=...`
+- `[STEP]  step=... action=... reward=... done=... error=...` (two spaces after `[STEP]` per sample)
 - `[END] success=... steps=... score=... rewards=...`
 
 ## Deployment
@@ -102,13 +119,16 @@ After deploy:
 
 ## Baseline Scores (Example)
 
+Replace this table after a successful full run against your deployed Space and working inference quota.
+
 | Task | Score |
 |---|---|
-| Task 1 | 0.09 |
-| Task 2 | 0.06 |
-| Task 3 | 0.02 |
+| Task 1 | *run inference.py and paste* |
+| Task 2 | *run inference.py and paste* |
+| Task 3 | *run inference.py and paste* |
 
 ## Notes and Limitations
 
-- Low scores above were collected under free-tier inference quota constraints.
-- If provider credits are exhausted, `inference.py` logs the raw API error and falls back safely, still emitting valid stdout format.
+- Previous example scores (~0.09 / 0.06 / 0.02) were collected under free-tier inference quota constraints.
+- If provider credits are exhausted, step logs include the API error in `error=`; the script still completes all three tasks with exit code 0 when the environment is reachable.
+- **HF Space:** connect the Space to this GitHub repo (or redeploy with `openenv push`) so automated health/reset checks match the submitted revision.
