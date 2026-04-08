@@ -96,7 +96,7 @@ Run (example with live Space):
 ```bash
 export ENV_BASE_URL="https://<owner>-<space>.hf.space"
 export API_BASE_URL="https://router.huggingface.co/v1"
-export MODEL_NAME="meta-llama/Llama-3.1-8B-Instruct"
+export MODEL_NAME="Qwen/Qwen2.5-72B-Instruct"
 export HF_TOKEN="hf_..."
 python inference.py
 ```
@@ -117,18 +117,22 @@ After deploy:
 - Health: `https://<username>-inbox-env.hf.space/health`
 - API docs: `https://<username>-inbox-env.hf.space/docs`
 
-## Baseline Scores (Example)
-
-Replace this table after a successful full run against your deployed Space and working inference quota.
+## Baseline Scores
 
 | Task | Score |
 |---|---|
-| Task 1 | *run inference.py and paste* |
-| Task 2 | *run inference.py and paste* |
-| Task 3 | *run inference.py and paste* |
+| Task 1 | 0.09 |
+| Task 2 | 0.06 |
+| Task 3 | 0.02 |
+
+Run context:
+- Space URL: `https://jeeya-ahuja05-inbox-env.hf.space`
+- LLM endpoint: `https://router.huggingface.co/v1`
+- Model: `meta-llama/Llama-3.1-8B-Instruct` and `Qwen/Qwen2.5-7B-Instruct`
 
 ## Notes and Limitations
 
-- Previous example scores (~0.09 / 0.06 / 0.02) were collected under free-tier inference quota constraints.
-- If provider credits are exhausted, step logs include the API error in `error=`; the script still completes all three tasks with exit code 0 when the environment is reachable.
-- **HF Space:** connect the Space to this GitHub repo (or redeploy with `openenv push`) so automated health/reset checks match the submitted revision.
+- Current baseline was collected under free-tier inference quota constraints; limited credits can reduce score quality.
+- If provider credits are exhausted, step logs include the raw API error in `error=`.
+- `inference.py` still emits valid `[START]/[STEP]/[END]` records and completes all tasks without unhandled exceptions.
+- Keep HF Space synced to the latest GitHub commit before submission so health/reset checks run against current code.
