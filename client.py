@@ -11,10 +11,7 @@ from typing import Any
 from openenv.core import EnvClient
 from openenv.core.client_types import StepResult
 
-try:
-    from .models import InboxAction, InboxObservation, InboxState
-except Exception:
-    from models import InboxAction, InboxObservation, InboxState
+from models import InboxAction, InboxObservation, InboxState
 
 
 class InboxEnv(EnvClient[InboxAction, InboxObservation, InboxState]):

@@ -181,6 +181,7 @@ def main() -> None:
     env_base_url = os.getenv("ENV_BASE_URL", "http://localhost:8000")
     model_name = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-72B-Instruct")
     hf_token = os.environ["HF_TOKEN"]
+    LOCAL_IMAGE_NAME = os.getenv("LOCAL_IMAGE_NAME")
     llm = OpenAI(base_url=api_base_url, api_key=hf_token)
 
     _run_task(env_base_url, llm, model_name, task_id="1", seed=11)
